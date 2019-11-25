@@ -21,11 +21,7 @@ body {
   letter-spacing: 0.93px;
   color: white !important;
 
-  /* background-image: url('./Asstets/stars-and-clouds-at-nighttime-1229042.jpg');
-  background-size: cover;
-  background-repeat: no-repeat ;
-  background-position: center; */
-  background-color: white !important;
+  background-color: #999 !important;
   min-height: 100vh !important;
   overflow: hidden;
 }

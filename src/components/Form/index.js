@@ -1,22 +1,18 @@
 import React from 'react';
 
-import './form.css';
+import '../../styles/form.css';
 
 const Form = props => {
 
-    // const alert = () =>( 
-    //     <div className="alert alert-danger mx-5" role="alert">
-    //         Please enter City and Country
-    //     </div>
-    // );
-
     const {
         getWeather,
+        getLocation,
         handleChange,
         city,
         country,
         btnName,
-        changeIcon
+        changeIcon,
+        hide
     } = props;
     
     return (
@@ -49,7 +45,7 @@ const Form = props => {
                         <button 
                             type="button"
                             className="btn btn-warning"
-                            onClick={ getWeather }
+                            onClick={ hide?  getWeather : getLocation }
                         >
                             {
                                 changeIcon

@@ -19,72 +19,72 @@
 
 .weather__bkg-clear{
   background-image: radial-gradient( circle, rgba(255, 255, 255, .8) , transparent 40%),
-  url('./images/clear.jpg') ;
+  url('../images/clear.jpg') ;
   color: #333;
 }
 
 .weather__bkg-clear-night{
   background-image: radial-gradient( circle, rgba(0, 0, 0, .5) , transparent 40%),
-  url('./images/clear-night.jpg') ;
+  url('../images/clear-night.jpg') ;
   color: #DDD;
 }
 
 .weather__bkg-cloudy{
   background-image: radial-gradient( circle, rgba(255, 255, 255, .3) 60%, transparent ),
-  url('./images/cloudy.jpg') ;
+  url('../images/cloudy.jpg') ;
   color: #333;
 }
 
 .weather__bkg-cloudy-night{
   background-image: radial-gradient( circle, rgba(0, 0, 0, .5) 60% , transparent ),
-  url('./images/cloudy-night.jpg') ;
+  url('../images/cloudy-night.jpg') ;
   color: #DDD;
 }
 
 .weather__bkg-fog{
-  background-image: url('./images/fog.png') ;
+  background-image: url('../images/fog.png') ;
   color: #555;
 }
 
 .weather__bkg-fog-night{
   background-image: radial-gradient( circle, rgba(0, 0, 0, .5) 60% , transparent ),
-  url('./images/fog-night.jpg') ;
+  url('../images/fog-night.jpg') ;
   color: #DDD;
 }
 
 .weather__bkg-snow{
   background-image: radial-gradient( circle, rgba(255, 255, 255, .5) 60%, transparent ),
-  url('./images/snow.jpg') ;
+  url('../images/snow.jpg') ;
   color: #555;
 }
 
 .weather__bkg-snow-night{
   background-image: radial-gradient( circle, rgba(0, 0, 0, .5) 50% , transparent ),
-  url('./images/snow-night.jpg') ;
+  url('../images/snow-night.jpg') ;
   color: #DDD;
 }
 
 .weather__bkg-rain{
   background-image: radial-gradient( circle, rgba(255, 255, 255, .6) 60%, transparent ),
-  url('./images/rain.jpg') ;
+  url('../images/rain.jpg') ;
   color: #444;
 }
 
 .weather__bkg-rain-night{
   background-image: radial-gradient( circle, rgba(0, 0, 0, .7) 50% , transparent ),
-  url('./images/rain-night.jpg') ;
+  url('../images/rain-night.jpg') ;
   color: #DDD;
 }
 
 .weather__bkg-thunderstorm{
   background-image: radial-gradient( circle, rgba(255, 255, 255, .5) 60%, transparent),
-  url('./images/thunderstorm.jpg') ;
+  url('../images/thunderstorm.jpg') ;
   color: #333;
 }
 
 .weather__bkg-thunderstorm-night{
   background-image: radial-gradient( circle, rgba(0, 0, 0, .3) 50% , transparent ),
-  url('./images/thunderstorm-night.jpg') ;
+  url('../images/thunderstorm-night.jpg') ;
   color: #DDD;
 }
 

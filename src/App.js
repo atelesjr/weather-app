@@ -6,7 +6,7 @@ import Form from './components/Form';
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "weather-icons/css/weather-icons.css";
-import './App.css';
+import "./styles/app.css"
 import Spinner from './components/spinner';
 
 const API_key = 'cb96a81148c5702669c9a1520eb75d3f';
@@ -42,9 +42,6 @@ class App extends Component {
       
     };
 
-    this.getLocation = this.getLocation.bind(this);
-    this.getUserAddress = this.getUserAddress.bind(this)
-
     this.btnIcon = {
       Gps: "fas fa-map-marker-alt",
       Search: "fas fa-search"
@@ -64,13 +61,12 @@ class App extends Component {
 
   };
 
-
   componentDidMount(){
     this.getLocation();
   }
 
+  //To get device location
   getLocation () {
-
     this.setState({
       ...this.state, loading: true
     })
@@ -108,7 +104,7 @@ class App extends Component {
     };
   };
 
-
+  //To get device address using coordinates from getLocation()
   getUserAddress = async () => {
     const { latitude, longitude } = this.state
     const googleAPI = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${mapsKey}`
@@ -126,7 +122,6 @@ class App extends Component {
   };
 
   handleChange(evt){
-    //evt.preventDefault();
     this.setState({
       ...this.state,
       [evt.target.name]: evt.target.value,
@@ -135,22 +130,26 @@ class App extends Component {
     });
   };
 
+  //to change API data to Celsius
   calCelsius(temp){
     let cell = Math.floor(temp - 273.15);
     return cell
   };
 
+  //To get weather by device location or sent by application form
   getWeather = async () => {
     const { userCity, city, country , userCountry } = this.state
     let apiCall, resCity, resCountry
 
     if( city && country ){
+      //by form
       resCity = city;
       resCountry = country
       this.setState({
         ...this.state, hide: true,
       })
     } else {
+      //by user device
       resCity = userCity;
       resCountry = userCountry;
       this.setState({
@@ -187,6 +186,7 @@ class App extends Component {
     }
   };
 
+  //To change API data to proper device time.
   calcSunriseSunset(sunPosition, name ){
     const dataUTC = new Date(sunPosition * 1000);
     const getTime = moment(dataUTC).format('HH:mm');
@@ -197,6 +197,7 @@ class App extends Component {
     });
   }
 
+  //To provide icon and background image according to weather.
   getWeatherIcon(icons, rangeId ){
     const { sunrise, sunset} = this.state;
     const now = moment(new Date()).format('HH:mm')
@@ -280,8 +281,6 @@ class App extends Component {
     };
   };
 
-
-  
   render(){
 
     const { 
@@ -305,7 +304,7 @@ class App extends Component {
       bkgClass
     } = this.state;
 
-    console.log('state', bkgClass);
+    //console.log('state', bkgClass);
 
     return(
       <div className={`app ${bkgClass}`}>
@@ -314,10 +313,12 @@ class App extends Component {
           city={city}
           country={country}
           getWeather={this.getWeather.bind(this)} 
+          getLocation={this.getLocation.bind(this)}
           error={error}
           btnName={ btnName }
           btnIcon={btnIcon}
           changeIcon={changeIcon}
+          hide={hide}
         />
         {
           loading 
