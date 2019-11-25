@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 
 import Weather from './components/Weather';
 import Form from './components/Form';
@@ -6,6 +7,7 @@ import Form from './components/Form';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "weather-icons/css/weather-icons.css";
 import './App.css';
+import Spinner from './components/spinner';
 
 const API_key = 'cb96a81148c5702669c9a1520eb75d3f';
 const mapsKey = 'AIzaSyC4GatwY4tdnGNxGXREv2diHovCu-Doet8';
@@ -19,6 +21,7 @@ class App extends Component {
       country: "",
       userCity: "",
       userCountry: "",
+      userAddress: "",
       local: "",
       icon: undefined,
       celsius: undefined,
@@ -29,12 +32,23 @@ class App extends Component {
       latitude: undefined,
       longitude: undefined,
       userAddr: "",
-      btnName: "Weather Forecast"
+      btnName: "Local Weather Forecast",
+      sunset: "",
+      sunrise: "",
+      hide: false,
+      changeIcon: false,
+      loading: false,
+      bkgClass: ""
       
     };
 
     this.getLocation = this.getLocation.bind(this);
     this.getUserAddress = this.getUserAddress.bind(this)
+
+    this.btnIcon = {
+      Gps: "fas fa-map-marker-alt",
+      Search: "fas fa-search"
+    }
 
     this.weatherIcon = {
       Thunderstorm: "wi-thunderstorm",
@@ -42,8 +56,10 @@ class App extends Component {
       Rain: "wi-storm-showers",
       Snow: "wi-snow",
       Fog: "wi-fog",
-      Clear: "wi-day-sunny",
-      Clouds: "wi-day-fog"
+      dayClear: "wi-day-sunny",
+      nightClear: "wi-night-clear",
+      dayClouds: "wi-day-fog",
+      nightClouds: "wi-night-fog"
     };
 
   };
@@ -54,6 +70,11 @@ class App extends Component {
   }
 
   getLocation () {
+
+    this.setState({
+      ...this.state, loading: true
+    })
+    
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition( position => {
         this.setState({
@@ -67,7 +88,6 @@ class App extends Component {
     } else {
       alert('ops, não é possível');
     };
-    console.log('getLocation', this.state)
   };
 
   showError(error) {
@@ -95,10 +115,12 @@ class App extends Component {
     
     const apiCall = await fetch(googleAPI);
     const response = await apiCall.json();
+    //console.log('getAddress: ', response )
     this.setState( {
       ...this.state,
       userCity: response.results[0].address_components[3].long_name,
       userCountry: response.results[0].address_components[5].long_name,
+      userAddress: response.results[0].formatted_address
     });
     this.getWeather();
   };
@@ -108,7 +130,8 @@ class App extends Component {
     this.setState({
       ...this.state,
       [evt.target.name]: evt.target.value,
-      btnName: "Buscar"
+      btnName: "Search for Weather",
+      changeIcon: true
     });
   };
 
@@ -124,9 +147,15 @@ class App extends Component {
     if( city && country ){
       resCity = city;
       resCountry = country
+      this.setState({
+        ...this.state, hide: true,
+      })
     } else {
       resCity = userCity;
       resCountry = userCountry;
+      this.setState({
+        ...this.state, hide: false
+      })
     }
 
     if(resCity && resCountry){
@@ -134,55 +163,124 @@ class App extends Component {
       apiCall = await fetch(API);
       const response = await apiCall.json();
 
+      this.calcSunriseSunset(response.sys.sunrise, 'sunrise'); 
+      this.calcSunriseSunset(response.sys.sunset, 'sunset'); 
+     
       this.setState({
         ...this.state,
         local: `${response.name}, ${response.sys.country}`,
         city: "",
         country: "",
-        btnName: `Weather Forecast for ${userCity}`,
-        icon: this.weatherIcon.Fog,
-        celsius: this.calCelsius(response.main.temp),
-        tempMax: this.calCelsius(response.main.temp_max),
-        tempMin: this.calCelsius(response.main.temp_min),
+        btnName: "Local Weather Forecast",
+        //icon:     this.weatherIcon.Fog,
+        celsius:  this.calCelsius(response.main.temp),
+        tempMax:  this.calCelsius(response.main.temp_max),
+        tempMin:  this.calCelsius(response.main.temp_min),
         description: response.weather[0].description,
-        error: false
+        changeIcon: false,
+        loading: false
       });
-      console.log('icon', response.weather[0].id)
-
-      this.getWeatherIcon(this.weathericon, response.weather[0].id);
       
-
+      this.getWeatherIcon(this.weathericon, response.weather[0].id);
     } else {
-      this.setState({error: true})
+      this.setState({...this.state, error: true})
     }
   };
 
+  calcSunriseSunset(sunPosition, name ){
+    const dataUTC = new Date(sunPosition * 1000);
+    const getTime = moment(dataUTC).format('HH:mm');
+
+    this.setState({
+      ...this.state,
+      [name]: getTime,
+    });
+  }
+
   getWeatherIcon(icons, rangeId ){
+    const { sunrise, sunset} = this.state;
+    const now = moment(new Date()).format('HH:mm')
+    let nocturn, bkgClass;
+
+    if (now > sunrise && now < sunset ){
+      nocturn = true;
+    } else {
+      nocturn = false;
+    }
+  
     switch(true){
       case rangeId >= 200 && rangeId <= 232:
-        this.setState({icon: this.weatherIcon.Thunderstorm});
+        nocturn 
+        ? bkgClass = "weather__bkg-thunderstorm" 
+        : bkgClass = "weather__bkg-thunderstorm-night"
+        this.setState({
+          icon: this.weatherIcon.Thunderstorm,
+          bkgClass
+        });
         break;
       case rangeId >= 300 && rangeId <= 321:
-        this.setState({icon: this.weatherIcon.Drizzle});
+        nocturn 
+        ? bkgClass = "weather__bkg-rain" 
+        : bkgClass = "weather__bkg-rain-night"
+        this.setState({
+          icon: this.weatherIcon.Drizzle,
+          bkgClass  
+        });
         break;
       case rangeId >= 500 && rangeId <= 531:
-        this.setState({icon: this.weatherIcon.Rain});
+        nocturn 
+        ? bkgClass = "weather__bkg-rain" 
+        : bkgClass = "weather__bkg-rain-night"
+        this.setState({
+          icon: this.weatherIcon.Rain,
+          bkgClass
+        });
         break;
       case rangeId >= 600 && rangeId <= 622:
-        this.setState({icon: this.weatherIcon.Snow});
+        nocturn 
+        ? bkgClass = "weather__bkg-snow" 
+        : bkgClass = "weather__bkg-snow-night"
+        this.setState({
+          icon: this.weatherIcon.Snow,
+          bkgClass
+        });
         break;
       case rangeId >= 701 && rangeId <= 781:
-        this.setState({icon: this.weatherIcon.Fog});
+        nocturn 
+        ? bkgClass = "weather__bkg-fog" 
+        : bkgClass = "weather__bkg-fog-night"
+        this.setState({
+          icon: this.weatherIcon.Fog,
+          bkgClass
+        })
         break;
       case rangeId === 800:
-        this.setState({icon: this.weatherIcon.Clear});
+        nocturn
+        ? this.setState({
+            icon: this.weatherIcon.dayClear,
+            bkgClass: "weather__bkg-clear"
+          })
+        : this.setState({
+            icon: this.weatherIcon.nightClear,
+            bkgClass: "weather__bkg-clear-night"
+          });
         break;
       case rangeId >= 801 && rangeId <= 804:
-        this.setState({icon: this.weatherIcon.Clouds});
+        nocturn 
+        ? this.setState({
+            icon: this.weatherIcon.dayClouds,
+            bkgClass: "weather__bkg-cloudy"
+          })
+        : this.setState({
+            icon: this.weatherIcon.nightClouds,
+            bkgClass: "weather__bkg-cloudy-night"
+          });
         break;
       default: this.setState({icon: this.weatherIcon.Drizzle});
     };
   };
+
+
   
   render(){
 
@@ -190,17 +288,27 @@ class App extends Component {
       local,
       city,
       country,
+      userAddress,
       icon,
       celsius,
       tempMin,
       tempMax,
       description,
       error,
-      btnName
+      btnName,
+      btnIcon,
+      hide,
+      changeIcon,
+      sunrise,
+      sunset,
+      loading,
+      bkgClass
     } = this.state;
-    console.log('state', this.state);
+
+    console.log('state', bkgClass);
+
     return(
-      <div className="App">
+      <div className={`app ${bkgClass}`}>
         <Form 
           handleChange={this.handleChange.bind(this)}
           city={city}
@@ -208,16 +316,26 @@ class App extends Component {
           getWeather={this.getWeather.bind(this)} 
           error={error}
           btnName={ btnName }
+          btnIcon={btnIcon}
+          changeIcon={changeIcon}
         />
-        <Weather 
-          local={ local } 
-          celsius={ celsius }
-          icon={ icon }
-          tempMax={ tempMax }
-          tempMin={ tempMin }
-          description={ description }
-        />
-    </div>
+        {
+          loading 
+          ? <Spinner />
+          : <Weather 
+            hide={hide}
+            address={ userAddress }
+            local={ local } 
+            sunrise={ sunrise }
+            sunset={ sunset }
+            celsius={ celsius }
+            icon={ icon }
+            tempMax={ tempMax }
+            tempMin={ tempMin }
+            description={ description }
+          />
+        }
+      </div>
     );
   };
 };
