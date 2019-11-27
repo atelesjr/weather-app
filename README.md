@@ -1,5 +1,5 @@
 # Weather-app
-React, Redux, Sass / CSS3
+React, Sass / CSS3
 
 #To install: 
 npm i
